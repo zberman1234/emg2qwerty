@@ -3,7 +3,7 @@
 A dataset of Surface electromyography (sEMG) recordings while typing on a QWERTY keyboard with ground-truth, benchmarks and baselines.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/172884/131009650-a8e96814-7ed6-4ba2-b995-a9f7a39c858c.png" alt="sEMG segment" height="80%" width="80%">
+  <img src="https://github.com/user-attachments/assets/71a9f361-7685-4188-83c3-099a009b6b81" height="80%" width="80%" alt="alt="sEMG recording" >
 </p>
 
 ## Setup
@@ -114,3 +114,4 @@ The 6-gram character-level language model, used by the first-pass beam-search de
 ## License
 
 emg2qwerty is CC-BY-NC-4.0 licensed, as found in the LICENSE file.
+
