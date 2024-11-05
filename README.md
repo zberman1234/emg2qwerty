@@ -1,6 +1,7 @@
 # emg2qwerty
+[ [`Paper`](https://arxiv.org/abs/2410.20081) ] [ [`Dataset`](https://fb-ctrl-oss.s3.amazonaws.com/emg2qwerty/emg2qwerty-data-2021-08.tar.gz) ] [ [`BibTeX`](#citing-emg2qwerty) ] 
 
-A dataset of Surface electromyography (sEMG) recordings while typing on a QWERTY keyboard with ground-truth, benchmarks and baselines.
+A dataset of surface electromyography (sEMG) recordings while touch typing on a QWERTY keyboard with ground-truth, benchmarks and baselines.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/71a9f361-7685-4188-83c3-099a009b6b81" height="80%" width="80%" alt="alt="sEMG recording" >
@@ -114,4 +115,18 @@ The 6-gram character-level language model, used by the first-pass beam-search de
 ## License
 
 emg2qwerty is CC-BY-NC-4.0 licensed, as found in the LICENSE file.
+
+## Citing emg2qwerty
+
+```
+@misc{sivakumar2024emg2qwertylargedatasetbaselines,
+      title={emg2qwerty: A Large Dataset with Baselines for Touch Typing using Surface Electromyography}, 
+      author={Viswanath Sivakumar and Jeffrey Seely and Alan Du and Sean R Bittner and Adam Berenzweig and Anuoluwapo Bolarinwa and Alexandre Gramfort and Michael I Mandel},
+      year={2024},
+      eprint={2410.20081},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2410.20081}, 
+}
+```
 
