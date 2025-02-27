@@ -31,7 +31,7 @@ A dataset of surface electromyography (sEMG) recordings while touch typing on a 
 git lfs install
 
 # Clone the repo, setup environment, and install local package
-git clone git@github.com:facebookresearch/emg2qwerty.git ~/emg2qwerty
+git clone git@github.com:joe-lin-tech/emg2qwerty.git ~/emg2qwerty 
 cd ~/emg2qwerty
 conda env create -f environment.yml
 conda activate emg2qwerty
