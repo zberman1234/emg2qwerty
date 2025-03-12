@@ -25,6 +25,7 @@ from emg2qwerty.modules import (
     MultiBandRotationInvariantMLP,
     SpectrogramNorm,
     TDSConvEncoder,
+    CircularSpatialConv,
 )
 from emg2qwerty.transforms import Transform
 
@@ -150,20 +151,33 @@ class TDSConvCTCModule(pl.LightningModule):
         optimizer: DictConfig,
         lr_scheduler: DictConfig,
         decoder: DictConfig,
+        spatial_features: int = 32,  # New parameter for spatial conv output features
+        spatial_kernel_size: int = 3,  # New parameter for spatial conv kernel size
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
 
         num_features = self.NUM_BANDS * mlp_features[-1]
+        freq_per_electrode = in_features // self.ELECTRODE_CHANNELS
 
         # Model
         # inputs: (T, N, bands=2, electrode_channels=16, freq)
         self.model = nn.Sequential(
             # (T, N, bands=2, C=16, freq)
             SpectrogramNorm(channels=self.NUM_BANDS * self.ELECTRODE_CHANNELS),
+            # Add spatial convolution to process electrode relationships
+            # (T, N, bands=2, C=16, freq) -> (T, N, bands=2, C=16, spatial_features)
+            CircularSpatialConv(
+                in_features=freq_per_electrode,  # freq features per electrode
+                out_features=spatial_features,
+                kernel_size=spatial_kernel_size,
+                num_electrodes=self.ELECTRODE_CHANNELS,
+                num_bands=self.NUM_BANDS,
+            ),
+            # Process spatial features
             # (T, N, bands=2, mlp_features[-1])
             MultiBandRotationInvariantMLP(
-                in_features=in_features,
+                in_features=spatial_features * self.ELECTRODE_CHANNELS,
                 mlp_features=mlp_features,
                 num_bands=self.NUM_BANDS,
             ),

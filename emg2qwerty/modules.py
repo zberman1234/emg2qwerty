@@ -278,3 +278,85 @@ class TDSConvEncoder(nn.Module):
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         return self.tds_conv_blocks(inputs)  # (T, N, num_features)
+
+
+class CircularSpatialConv(nn.Module):
+    """A 1D convolutional layer that treats EMG electrodes as a circular array around the wrist.
+    Processes each frequency band independently.
+
+    Args:
+        in_features (int): Number of input features per electrode
+        out_features (int): Number of output features per electrode
+        kernel_size (int): Size of the convolutional kernel. Should be odd. (default: 3)
+        num_electrodes (int): Number of electrodes in the array (default: 16)
+        num_bands (int): Number of frequency bands (default: 2)
+    """
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        kernel_size: int = 3,
+        num_electrodes: int = 16,
+        num_bands: int = 2,
+    ) -> None:
+        super().__init__()
+        assert kernel_size % 2 == 1, "kernel_size must be odd"
+        self.kernel_size = kernel_size
+        self.num_electrodes = num_electrodes
+        self.num_bands = num_bands
+        self.padding_size = kernel_size // 2
+
+        # Linear layer to change feature dimension
+        self.feature_proj = nn.Linear(in_features, out_features)
+
+        # Conv1d: (N, C_in, L) -> (N, C_out, L)
+        # For each electrode position, we'll convolve over the feature dimension
+        self.conv = nn.Conv1d(
+            in_channels=out_features,  # Use projected feature dim
+            out_channels=out_features,
+            kernel_size=kernel_size,
+            padding=0,  # We'll handle circular padding manually
+            groups=1,  # Allow all electrodes to interact
+        )
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        # inputs shape: (T, N, bands=2, electrode_channels=16, features)
+        T, N, B, C, F = inputs.shape
+        assert (
+            C == self.num_electrodes
+        ), f"Expected {self.num_electrodes} electrodes, got {C}"
+        assert B == self.num_bands, f"Expected {self.num_bands} bands, got {B}"
+
+        # Process each band independently
+        outputs = []
+        for band in range(self.num_bands):
+            # Extract single band and reshape for feature projection
+            # (T, N, electrode_channels=16, features)
+            x = inputs[:, :, band].reshape(-1, F)  # (T*N*C, F)
+
+            # Project features
+            x = self.feature_proj(x)  # (T*N*C, out_features)
+
+            # Reshape for convolution: (T*N, out_features, electrodes)
+            x = x.reshape(T * N, C, -1).transpose(1, 2)
+
+            # Add circular padding along electrode dimension
+            x = torch.cat(
+                [
+                    x[..., -self.padding_size :],  # Last electrodes for left padding
+                    x,
+                    x[..., : self.padding_size],  # First electrodes for right padding
+                ],
+                dim=2,
+            )
+
+            # Apply convolution
+            x = self.conv(x)
+
+            # Reshape back: (T, N, electrode_channels, out_features)
+            x = x.transpose(1, 2).reshape(T, N, C, -1)
+            outputs.append(x)
+
+        # Stack bands back together: (T, N, bands, electrode_channels, out_features)
+        return torch.stack(outputs, dim=2)
