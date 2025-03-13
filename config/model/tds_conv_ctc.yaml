@@ -1,6 +1,7 @@
 # @package _global_
 module:
-  _target_: emg2qwerty.lightning.TDSConvCTCModule
+  # _target_: emg2qwerty.lightning.TDSConvCTCModule
+  _target_: emg2qwerty.lightning.CircularTDSConvCTCModule
   in_features: 528  # freq * channels = (n_fft // 2 + 1) * 16
   mlp_features: [384]
   block_channels: [24, 24, 24, 24]
