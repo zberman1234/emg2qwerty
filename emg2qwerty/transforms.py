@@ -243,3 +243,38 @@ class SpecAugment:
 
         # (..., C, freq, T) -> (T, ..., C, freq)
         return x.movedim(-1, 0)
+
+
+@dataclass
+class RandomTemporalCrop:
+    """Randomly crops a continuous segment of the input EMG signal, considering input of shape:
+      (T, ...).
+
+    Args:
+        crop_length (int): The length of the cropped segment in timesteps.
+        min_crop_length (int, optional): Minimum length of the crop. If None,
+            uses crop_length. Final crop length will be randomly sampled
+            between min_crop_length and crop_length.
+    """
+
+    crop_length: int
+    min_crop_length: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.min_crop_length is None:
+            self.min_crop_length = self.crop_length
+        assert self.min_crop_length <= self.crop_length
+        assert self.min_crop_length > 0
+
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
+        time_steps = tensor.shape[0]
+        # Randomly sample crop length between min and max
+        crop_len = np.random.randint(self.min_crop_length, self.crop_length + 1)
+        # Ensure we don't try to crop more than we have
+        crop_len = min(crop_len, time_steps)
+        # Randomly select start point
+        max_start = time_steps - crop_len
+        start_idx = np.random.randint(0, max_start + 1) if max_start > 0 else 0
+
+        # return tensor with padding substituted for the cropped regions
+        return tensor[start_idx : start_idx + crop_len]
