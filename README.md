@@ -1,3 +1,4 @@
+# Note
 The 3 different model architectures explored in my report can be found under the 3 branches
 
 # emg2qwerty
