@@ -1,3 +1,6 @@
+# Spatial CNN + LSTM Encoder
+This branch contains the architecture for the baseline CNN architecture
+
 # emg2qwerty
 [ [`Paper`](https://arxiv.org/abs/2410.20081) ] [ [`Dataset`](https://fb-ctrl-oss.s3.amazonaws.com/emg2qwerty/emg2qwerty-data-2021-08.tar.gz) ] [ [`Blog`](https://ai.meta.com/blog/open-sourcing-surface-electromyography-datasets-neurips-2024/) ] [ [`BibTeX`](#citing-emg2qwerty) ]
 
